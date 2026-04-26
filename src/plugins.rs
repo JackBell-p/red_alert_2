@@ -1,4 +1,4 @@
 mod shp;
 
-pub use shp::bevy_shp_loader::BevyShpLoader;
+pub use shp::loader::Loader;
 

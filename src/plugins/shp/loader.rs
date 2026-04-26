@@ -1,14 +1,15 @@
 use bevy::prelude::*;
 
+use super::reader;
 
-pub struct BevyShpLoader;
+pub struct Loader;
 
-impl Plugin for BevyShpLoader {
+impl Plugin for Loader {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, shp_system);
     }
 }
 
 fn shp_system() {
-    println!("SHP system running");
+    reader::read_shp("assets/shp/numislmk.shp");
 }

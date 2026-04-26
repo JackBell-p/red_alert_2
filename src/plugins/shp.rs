@@ -1,3 +1,3 @@
-pub mod bevy_shp_loader;
+pub mod loader;
 mod reader;
 mod types;
