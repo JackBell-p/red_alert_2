@@ -4,6 +4,6 @@ mod plugins;
 
 fn main() {
     App::new()
-        .add_plugins(plugins::Loader)
+        .add_plugins(plugins::shp::Shp)
         .run();
 }
