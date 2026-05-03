@@ -12,27 +12,31 @@ use super::{
 };
 use crate::plugins::pal::reader::get_color_array;
 
-pub fn read_shp(path: &str, pal_path: &str, half: bool) -> std::io::Result<()> {
-    let color_array = get_color_array(&path, None)?;
-
-    let pal_prefix = match Path::new(pal_path).file_stem().and_then(|s| s.to_str()) {
-        Some(pal_prefix) => pal_prefix,
-        None => {
-            println!("Unable to extract file name prefix.");
-            ""
-        }
-    };
+pub fn read_shp(
+    shp_path: &str,
+    pal_prefix: &str,
+    half: bool,
+) -> std::io::Result<Vec<ShapeUnitFrame>> {
+    let color_array = get_color_array(&pal_prefix, None)?;
 
     //Read the
-    let mut reader = BufReader::new(File::open(path)?);
+    let mut reader = BufReader::new(File::open(shp_path)?);
 
     let shp_header = parse_header(&mut reader)?;
 
     let mut frame_header = parse_all_frame_header(&mut reader, shp_header.frames)?;
 
-    let frame_data = parse_all_frame_data(&mut reader, shp_header, &mut frame_header, false, half, pal_prefix, color_array)?;
+    let frame_data = parse_all_frame_data(
+        &mut reader,
+        shp_header,
+        &mut frame_header,
+        false,
+        half,
+        pal_prefix,
+        color_array,
+    )?;
 
-    Ok(())
+    Ok(frame_data.unwrap())
 }
 
 fn parse_header(reader: &mut BufReader<File>) -> std::io::Result<ShpHeader> {
@@ -81,7 +85,14 @@ fn parse_all_frame_data(
     color_array: [u32; 256],
 ) -> std::io::Result<Option<Vec<ShapeUnitFrame>>> {
     let read_size = decide_read_size(frame_header, is_use_shadow, half);
-    Ok(Some(decode_frames(reader, read_size, shp_header, frame_header, pal_prefix, color_array)?))
+    Ok(Some(decode_frames(
+        reader,
+        read_size,
+        shp_header,
+        frame_header,
+        pal_prefix,
+        color_array,
+    )?))
 }
 
 fn decide_read_size(frame_header: &mut Vec<FrameHeader>, is_use_shadow: bool, half: bool) -> usize {

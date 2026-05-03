@@ -1,4 +1,7 @@
-use std::{fs::File, io::{BufReader, Read}};
+use std::{
+    fs::File,
+    io::{BufReader, Read},
+};
 
 use super::enums::UnitColor;
 
@@ -42,8 +45,8 @@ fn turn_orange(ori: u32) -> u32 {
     ori | d
 }
 
-pub fn get_color_array(path: &str, team: Option<UnitColor>) -> std::io::Result<[u32; 256]> {
-    let mut reader = BufReader::new(File::open(path)?);
+pub fn get_color_array(pal_prefix: &str, team: Option<UnitColor>) -> std::io::Result<[u32; 256]> {
+    let mut reader = BufReader::new(File::open(format!("assets\\pal\\{}.pal", pal_prefix))?);
     let mut pal = [0u8; 768];
     reader.read_exact(&mut pal)?;
 
