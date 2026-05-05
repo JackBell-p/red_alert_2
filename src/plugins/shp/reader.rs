@@ -1,7 +1,6 @@
 use std::{
     fs::File,
     io::{BufReader, Read, Seek, SeekFrom},
-    path::Path,
 };
 
 use image::{Rgba, RgbaImage};
@@ -26,7 +25,7 @@ pub fn read_shp(
 
     let mut frame_header = parse_all_frame_header(&mut reader, shp_header.frames)?;
 
-    let frame_data = parse_all_frame_data(
+    let frame_data = match parse_all_frame_data(
         &mut reader,
         shp_header,
         &mut frame_header,
@@ -34,9 +33,17 @@ pub fn read_shp(
         half,
         pal_prefix,
         color_array,
-    )?;
+    )? {
+        Some(frame_data) => frame_data,
+        None => {
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "The frame_data is none.",
+            ));
+        }
+    };
 
-    Ok(frame_data.unwrap())
+    Ok(frame_data)
 }
 
 fn parse_header(reader: &mut BufReader<File>) -> std::io::Result<ShpHeader> {

@@ -1,4 +1,8 @@
-use std::{collections::HashMap, fs, path::PathBuf};
+use std::{
+    collections::{HashMap, hash_map::Entry},
+    fs,
+    path::PathBuf,
+};
 
 use super::{reader, types::ShapeUnitFrame};
 
@@ -36,29 +40,27 @@ impl Loader {
         half: bool,
     ) -> std::io::Result<&Vec<ShapeUnitFrame>> {
         let key = format!("{shp_prefix}-{pal_prefix}");
-        let shp_path = match self.get_shp_by_prefix(shp_prefix) {
-            Some(shp_path) => shp_path,
-            None => {
-                println!("SHP file not found for prefix: {}", shp_prefix);
-                return Err(std::io::Error::new(
-                    std::io::ErrorKind::NotFound,
-                    "SHP file not found",
-                ));
+        let shp_path = self.get_shp_by_prefix(shp_prefix).ok_or_else(|| {
+            std::io::Error::new(std::io::ErrorKind::NotFound, "SHP file not found.")
+        })?;
+
+        match self.cache.entry(key) {
+            Entry::Occupied(entry) => {
+                //Do have key return it's ref.
+                Ok(&*entry.into_mut())
             }
-        };
+            Entry::Vacant(entry) => {
+                //Do not have key read the file.
+                let frames = reader::read_shp(&shp_path, pal_prefix, half)?;
 
-        if self.cache.contains_key(&key) {
-            return Ok(self.cache.get(&key).unwrap());
+                Ok(&*entry.insert(frames))
+            }
         }
-
-        let frames = reader::read_shp(shp_path.to_str().unwrap(), pal_prefix, half).unwrap();
-
-        self.cache.insert(key.clone(), frames);
-
-        Ok(self.cache.get(&key).unwrap())
     }
 
-    fn get_shp_by_prefix(&self, shp_prefix: &str) -> Option<&PathBuf> {
-        self.paths.get(shp_prefix)
+    fn get_shp_by_prefix(&self, shp_prefix: &str) -> Option<String> {
+        self.paths
+            .get(shp_prefix)
+            .and_then(|s| s.to_str().map(|s| s.to_owned()))
     }
 }
