@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 
 mod enums;
-pub mod loader;
+mod image_utils;
+mod loader;
 mod reader;
 mod types;
 
