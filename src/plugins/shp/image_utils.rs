@@ -1,9 +1,12 @@
 use bevy::{
-    asset::RenderAssetUsages,
+    asset::{Assets, Handle, RenderAssetUsages},
+    ecs::system::ResMut,
     image::Image,
     render::render_resource::{Extent3d, TextureDimension, TextureFormat},
 };
 use image::RgbaImage;
+
+use super::loader::Loader;
 
 fn rgba_to_bevy_image(rgba: &RgbaImage) -> Image {
     let (width, height) = rgba.dimensions();
@@ -21,4 +24,26 @@ fn rgba_to_bevy_image(rgba: &RgbaImage) -> Image {
         TextureFormat::Rgba8UnormSrgb,
         RenderAssetUsages::default(),
     )
+}
+
+pub fn load_shp_images(
+    images: &mut Assets<Image>,
+    shp_prefix: &str,
+    pal_prefix: &str,
+) -> std::io::Result<Vec<Handle<Image>>> {
+    let mut loader = Loader::new("assets\\shp")
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+    let frames = loader
+        .load_shp(shp_prefix, pal_prefix, true)
+        .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+
+    let mut handles = Vec::new();
+
+    for frame in frames {
+        let bevy_image = rgba_to_bevy_image(&frame.image);
+
+        handles.push(images.add(bevy_image));
+    }
+
+    Ok(handles)
 }
