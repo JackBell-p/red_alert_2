@@ -12,7 +12,6 @@ impl Plugin for Plugins {
     fn build(&self, app: &mut App) {
         //app.add_plugins(shp::Shp);
         app.add_plugins(window_setup::WindowSetup)
-            .add_plugins(systems::Systems)
-            .add_plugins(shp::Shp);
+            .add_plugins(systems::Systems);
     }
 }

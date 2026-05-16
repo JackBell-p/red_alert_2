@@ -1,3 +1,4 @@
+use bevy::prelude::*;
 use std::{
     fs::File,
     io::{BufReader, Read, Seek, SeekFrom},
@@ -53,18 +54,29 @@ fn read_shp_header<R: Read>(reader: &mut R) -> Result<ShpHeader, Ra2Error> {
 }
 
 //Convert shp file to png format
-pub fn shp_to_png(shp_path: &Path, palette: &Palette) -> Result<(), Ra2Error> {
+pub fn decode_shp_to_image(
+    images: &mut Assets<Image>,
+    shp_path: &Path,
+    pal_path: &Path,
+) -> Result<Vec<Handle<Image>>, Ra2Error> {
+    let palette = Palette::load(pal_path)?;
+
+    let mut handles = Vec::new();
+
     match shp_path.extension() {
         Some(s) if s.eq("shp") => {
             let mut shp = ShpReader::new(shp_path)?;
             for i in 0..shp.header.number_of_frames {
                 let frame = shp.get_frame(i as u64)?;
                 let image =
-                    frame.render(palette, shp.header.width as u32, shp.header.height as u32)?;
-                image.save(Path::new(&format!("F:/shp/{:03}.png", i)))?;
+                    frame.render(&palette, shp.header.width as u32, shp.header.height as u32)?;
+
+                let handle = images.add(image);
+                handles.push(handle);
             }
         }
         _ => {}
     }
-    Ok(())
+
+    Ok(handles)
 }

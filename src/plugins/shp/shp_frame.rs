@@ -1,3 +1,8 @@
+use bevy::{
+    asset::RenderAssetUsages,
+    prelude::*,
+    render::render_resource::{Extent3d, TextureDimension, TextureFormat},
+};
 use std::io::{Read, Seek, SeekFrom};
 
 use byteorder::{LittleEndian, ReadBytesExt};
@@ -68,7 +73,7 @@ impl ShpFrame {
     }
 
     //Render frame as rgba image buffer.
-    pub fn render(&self, palette: &Palette, width: u32, depth: u32) -> Result<RgbaImage, Ra2Error> {
+    pub fn render(&self, palette: &Palette, width: u32, depth: u32) -> Result<Image, Ra2Error> {
         let mut image = RgbaImage::new(width, depth);
         let mut index = 0;
         for dy in 0..self.height {
@@ -83,7 +88,7 @@ impl ShpFrame {
                 index += 1;
             }
         }
-        Ok(image)
+        Ok(rgba_to_bevy_image(image))
     }
 }
 
@@ -119,4 +124,22 @@ fn decompress_rle_data<R: Read>(
         }
     }
     Ok(decompressed_data)
+}
+
+fn rgba_to_bevy_image(rgba: RgbaImage) -> Image {
+    let (width, height) = rgba.dimensions();
+    // Vec<u8> RGBA.
+    let raw = rgba.clone().into_raw();
+
+    Image::new(
+        Extent3d {
+            width,
+            height,
+            depth_or_array_layers: 1,
+        },
+        TextureDimension::D2,
+        raw,
+        TextureFormat::Rgba8UnormSrgb,
+        RenderAssetUsages::default(),
+    )
 }

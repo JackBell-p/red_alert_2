@@ -1,6 +1,8 @@
+use std::path::Path;
+
 use bevy::prelude::*;
 
-use crate::plugins::shp::image_utils;
+use crate::plugins::shp::shp_reader;
 
 #[derive(Component)]
 pub struct Animation {
@@ -12,10 +14,10 @@ pub struct Animation {
 fn spawn_sprite(
     commands: &mut Commands,
     images: &mut Assets<Image>,
-    shp_prefix: &str,
-    pal_prefix: &str,
+    shp_path: &Path,
+    pal_path: &Path,
 ) {
-    match image_utils::load_shp_images(images, shp_prefix, pal_prefix) {
+    match shp_reader::decode_shp_to_image(images, shp_path, pal_path) {
         Ok(handles) => {
             if handles.is_empty() {
                 println!("No frames loaded");
@@ -56,6 +58,11 @@ pub fn setup_camera(mut commands: Commands) {
 }
 
 pub fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
-    spawn_sprite(&mut commands, &mut images, "numislmk", "uniturb");
+    spawn_sprite(
+        &mut commands,
+        &mut images,
+        Path::new("assets/shp/numislmk.shp"),
+        Path::new("assets/pal/uniturb.pal"),
+    );
     setup_camera(commands);
 }
