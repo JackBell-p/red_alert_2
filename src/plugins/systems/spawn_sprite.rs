@@ -17,7 +17,7 @@ fn spawn_sprite(
     shp_path: &Path,
     pal_path: &Path,
 ) {
-    match shp_reader::decode_shp_to_image(images, shp_path, pal_path) {
+    match shp_reader::decode_shp_to_image(images, shp_path, pal_path, true) {
         Ok(handles) => {
             if handles.is_empty() {
                 println!("No frames loaded");

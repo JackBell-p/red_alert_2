@@ -1,6 +1,6 @@
 pub struct ShpHeader {
     //Unused reserved header.
-    pub reserved: u16,
+    pub _reserved: u16,
     //The animation width.
     pub width: u16,
     //The animation height.

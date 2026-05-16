@@ -6,7 +6,6 @@ use image::ImageError;
 pub enum Ra2Error {
     Io(std::io::Error),
     InvalidFormat { message: String },
-    EncodeError { format: String, message: String },
 }
 
 impl Display for Ra2Error {
@@ -17,9 +16,6 @@ impl Display for Ra2Error {
             }
             Ra2Error::InvalidFormat { message: e } => {
                 write!(f, "Invalid file format: {}", e)
-            }
-            Ra2Error::EncodeError { format, message } => {
-                write!(f, "Encode error: {}: {}", format, message)
             }
         }
     }
