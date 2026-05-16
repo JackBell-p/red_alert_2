@@ -1,6 +1,5 @@
 use bevy::{
     asset::{Assets, Handle, RenderAssetUsages},
-    ecs::system::ResMut,
     image::Image,
     render::render_resource::{Extent3d, TextureDimension, TextureFormat},
 };
@@ -34,7 +33,7 @@ pub fn load_shp_images(
     let mut loader = Loader::new("assets\\shp")
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
     let frames = loader
-        .load_shp(shp_prefix, pal_prefix, true)
+        .load_shp(shp_prefix, pal_prefix, false)
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
 
     let mut handles = Vec::new();

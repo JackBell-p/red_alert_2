@@ -4,7 +4,7 @@ use std::{
     path::PathBuf,
 };
 
-use super::{reader, types::ShapeUnitFrame};
+use super::{reader_old, types::ShapeUnitFrame};
 
 pub struct Loader {
     pub paths: HashMap<String, PathBuf>,
@@ -51,7 +51,7 @@ impl Loader {
             }
             Entry::Vacant(entry) => {
                 //Do not have key read the file.
-                let frames = reader::read_shp(&shp_path, pal_prefix, half)?;
+                let frames = reader_old::read_shp(&shp_path, pal_prefix, half)?;
 
                 Ok(&*entry.insert(frames))
             }

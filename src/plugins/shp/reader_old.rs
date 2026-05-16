@@ -9,7 +9,7 @@ use super::{
     enums::scene_type::SceneType,
     types::{ColorPoint, FrameHeader, ShapeUnitFrame, ShpHeader},
 };
-use crate::plugins::pal::reader::get_color_array;
+use crate::plugins::pal::reader_old::get_color_array;
 
 pub fn read_shp(
     shp_path: &str,
